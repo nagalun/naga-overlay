@@ -1,0 +1,12 @@
+diff --git a/Makefile b/Makefile
+index 8507a36..5b00af4 100644
+--- a/Makefile
++++ b/Makefile
+@@ -37,6 +37,7 @@ all: libytdl_plugin.so
+ 
+ install: all
+ 	mkdir -p -- $(DESTDIR)$(stream_filterdir)
++	mkdir -p -- $(DESTDIR)$(pkgdatadir)
+ 	$(INSTALL) --mode 0755 libytdl_plugin.so $(DESTDIR)$(stream_filterdir)
+ 	install --mode 0755 src/ytdl-extract.py $(DESTDIR)$(pkgdatadir)
+ 

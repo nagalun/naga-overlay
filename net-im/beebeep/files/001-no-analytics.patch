@@ -1,0 +1,10 @@
+--- a/src/utils/GAnalytics.cpp	2020-12-07 17:57:31.901526221 +0100
++++ b/src/utils/GAnalytics.cpp	2020-12-07 17:59:00.084322645 +0100
+@@ -36,6 +36,7 @@
+ 
+ void GAnalytics::doPost()
+ {
++  return;
+   QUrl ga_url = QUrl( Settings::instance().gaUrl() );
+   QNetworkProxyQuery npq = QNetworkProxyQuery( ga_url );
+   QNetworkProxy np = Settings::instance().systemNetworkProxy( npq );
