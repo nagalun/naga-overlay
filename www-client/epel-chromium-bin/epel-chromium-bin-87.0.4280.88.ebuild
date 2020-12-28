@@ -28,7 +28,7 @@ SRC_URI="
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~arm64"
-IUSE=""
+IUSE="wayland"
 
 S="${WORKDIR}"
 
@@ -77,6 +77,13 @@ COMMON_DEPEND="
         >=app-accessibility/at-spi2-core-2.26:2
         >=dev-libs/atk-2.26
         x11-libs/gtk+:3[X]
+        wayland? (
+                dev-libs/wayland:=
+                dev-libs/libffi:=
+                x11-libs/gtk+:3[wayland,X]
+                x11-libs/libdrm:=
+                x11-libs/libxkbcommon:=
+        )
 "
 
 #        pulseaudio? ( media-sound/pulseaudio:= )
@@ -88,19 +95,15 @@ COMMON_DEPEND="
 #                )
 #                >=media-libs/opus-1.3.1:=
 #        )
-#        wayland? (
-#                dev-libs/wayland:=
-#                dev-libs/libffi:=
-#                x11-libs/gtk+:3[wayland,X]
-#                x11-libs/libdrm:=
-#                x11-libs/libxkbcommon:=
-#        )
 
 RDEPEND="${COMMON_DEPEND}
         x11-misc/xdg-utils
         virtual/opengl
         virtual/ttf-fonts
+	!www-client/chromium
+	!www-client/chromium-bin
 "
+BDEPEND="app-arch/gzip"
 
 DEPEND="${COMMON_DEPEND}"
 
@@ -110,18 +113,33 @@ src_install() {
 
 	pushd etc/chromium
 	insinto "${CHROMIUM_ETC}"
-	doins -r *
+	doins -r native-messaging-hosts policies
+	newins "${FILESDIR}/chromium.default" "default"
 	popd
 
 	pushd usr/share
-	domenu applications/chromium-browser.desktop
 	dodoc -r doc/chromium/*
 
-	for size in 24 48 64 128 256 ; do
-		doicon -s ${size} "icons/hicolor/${size}x${size}/apps/chromium-browser.png"
-	done
+	#for size in 24 48 64 128 256 ; do
+	#	newicon -s ${size} "icons/hicolor/${size}x${size}/apps/chromium-browser.png" \
+	#		chromium-browser.png
+	#done
 
-	doman man/man1/chromium-browser.1.gz
+	#for size in 16 32 ; do
+	#	newicon -s ${size} "icons/hicolor/64x64/apps/chromium-browser.png" \
+	#		chromium-browser.png
+	#done
+
+	newicon "icons/hicolor/256x256/apps/chromium-browser.png" chromium-browser.png
+
+	domenu applications/chromium-browser.desktop
+
+	insinto /usr/share/gnome-control-center/default-apps
+	doins gnome-control-center/default-apps/chromium-browser.xml
+
+	gzip -d man/man1/chromium-browser.1.gz
+	doman man/man1/chromium-browser.1
+	dosym chromium-browser.1 /usr/share/man/man1/chromium.1
 	popd
 
 	pushd usr/lib64/chromium-browser
@@ -131,8 +149,11 @@ src_install() {
 	doexe chrome-sandbox chromium-browser chromium-browser.sh xdg-mime xdg-settings
 	popd
 
-	dosym "${CHROMIUM_HOME}/chromium-browser.sh" /usr/bin/chromium-browser
-	dosym "${CHROMIUM_HOME}/chromium-browser.sh" /usr/bin/chromium
+	sed -e "s:@@OZONE_AUTO_SESSION@@:$(usex wayland true false):g" "${FILESDIR}/epel-chromium-launcher.sh" > epel-chromium-launcher.sh || die
+	doexe epel-chromium-launcher.sh
+
+	dosym "${CHROMIUM_HOME}/epel-chromium-launcher.sh" /usr/bin/chromium-browser
+	dosym "${CHROMIUM_HOME}/epel-chromium-launcher.sh" /usr/bin/chromium
 }
 
 pkg_preinst() {
