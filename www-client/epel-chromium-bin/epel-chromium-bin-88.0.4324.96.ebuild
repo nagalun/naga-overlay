@@ -51,6 +51,7 @@ COMMON_X_DEPEND="
 
 #       vaapi? ( >=x11-libs/libva-2.7:=[X,drm] )
 COMMON_DEPEND="
+	=dev-libs/icu-67*:0
         app-arch/bzip2:=
         >=net-print/cups-2:=
         dev-libs/expat:=
