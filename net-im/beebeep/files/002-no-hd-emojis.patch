@@ -1,0 +1,39 @@
+diff --git a/src/core/Settings.h b/src/core/Settings.h
+index f2fd9d2..c63db0e 100644
+--- a/src/core/Settings.h
++++ b/src/core/Settings.h
+@@ -1197,7 +1197,7 @@ inline bool Settings::isNotificationDisabledForGroup( const QString& group_id )
+ inline void Settings::setUseFontEmoticons( bool new_value ) { m_useFontEmoticons = new_value; }
+ inline bool Settings::useFontEmoticons() const { return m_useFontEmoticons; }
+ inline void Settings::setUseHiResEmoticons( bool new_value ) { m_useHiResEmoticons = new_value; }
+-inline bool Settings::useHiResEmoticons() const { return m_useHiResEmoticons; }
++inline bool Settings::useHiResEmoticons() const { return false; }
+ inline int Settings::imagePreviewHeight() const { return m_imagePreviewHeight; }
+ inline void Settings::setPromptOnCloseEvent( bool new_value ) { m_promptOnCloseEvent = new_value; }
+ inline bool Settings::promptOnCloseEvent() const { return m_promptOnCloseEvent; }
+diff --git a/src/desktop/GuiMain.cpp b/src/desktop/GuiMain.cpp
+index 2f103be..a784bed 100644
+--- a/src/desktop/GuiMain.cpp
++++ b/src/desktop/GuiMain.cpp
+@@ -1085,7 +1085,7 @@ void GuiMain::createMenus()
+   act->setCheckable( true );
+   act->setChecked( Settings::instance().useHiResEmoticons() );
+   act->setData( 105 );
+-#if QT_VERSION < 0x050000
++#if QT_VERSION < 0x050000 || 1
+   act->setEnabled( false );
+ #endif
+   act = mp_menuChatSettings->addAction( tr( "Use font emoticons" ), this, SLOT( settingsChanged() ) );
+diff --git a/src/src.pro b/src/src.pro
+index f7bc563..bb2de01 100644
+--- a/src/src.pro
++++ b/src/src.pro
+@@ -101,7 +101,7 @@ HEADERS += Interfaces.h
+ 
+ RESOURCES += beebeep.qrc emojis.qrc
+ greaterThan(QT_MAJOR_VERSION, 4): {
+-  RESOURCES += emojis2x_1.qrc emojis2x_2.qrc
++#  RESOURCES += emojis2x_1.qrc emojis2x_2.qrc
+ }
+ 
+ win32: RC_FILE = beebeep.rc

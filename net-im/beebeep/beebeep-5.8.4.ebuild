@@ -16,9 +16,10 @@ inherit desktop qmake-utils xdg
 LICENSE="GPL-3"
 SLOT="0"
 RESTRICT="mirror"
-KEYWORDS="amd64 x86 arm64"
+KEYWORDS="amd64 ~x86 arm64"
 REQUIRED_USE=""
-IUSE=""
+# Beebeep seems to crash under wayland, X-only forces running through X
+IUSE="hd-emojis telemetry +X-only"
 
 DEPEND="
 	>=dev-qt/qtcore-5
@@ -28,12 +29,22 @@ DEPEND="
 
 RDEPEND="${DEPEND}"
 
-PATCHES=(
-	"${FILESDIR}/001-no-analytics.patch"
-)
+PATCHES=( )
 
 src_configure() {
 	eqmake5 "${S}/beebeep-desktop.pro"
+}
+
+src_prepare() {
+	if ! use telemetry; then
+		PATCHES+=("${FILESDIR}/001-no-analytics.patch")
+	fi
+
+	if ! use hd-emojis; then
+		PATCHES+=("${FILESDIR}/002-no-hd-emojis.patch")
+	fi
+
+	default
 }
 
 src_install() {
@@ -47,7 +58,13 @@ src_install() {
 
 	doicon src/images/beebeep.png
 
-	make_desktop_entry ${PN} "BeeBEEP" beebeep Network
+	local EXTRA_APP_ENV="env"
+
+	if use X-only; then
+		EXTRA_APP_ENV+=" QT_QPA_PLATFORM=xcb"
+	fi
+
+	make_desktop_entry "${EXTRA_APP_ENV} ${PN}" "BeeBEEP" beebeep Network
 }
 
 pkg_preinst() {
