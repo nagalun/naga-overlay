@@ -18,8 +18,7 @@ SLOT="0"
 RESTRICT="mirror"
 KEYWORDS="amd64 ~x86 arm64"
 REQUIRED_USE=""
-# Beebeep seems to crash under wayland, X-only forces running through X
-IUSE="hd-emojis telemetry +X-only"
+IUSE="hd-emojis telemetry X-only"
 
 DEPEND="
 	>=dev-qt/qtcore-5
