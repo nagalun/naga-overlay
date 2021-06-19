@@ -17,7 +17,16 @@ SLOT="%SLOT%"
 ECLIPSE_HOME=${ECLIPSE_HOME:="/opt/eclipse-cpp-bin-%SLOT%"}
 ECLIPSE_BIN="${ECLIPSE_HOME}/eclipse"
 
-VM_BIN="/opt/openjdk-bin-11/bin/java"
+VMS=(
+	/opt/openjdk-bin-11/bin/java
+	/usr/lib64/openjdk-11/bin/java
+	/usr/lib/openjdk-11/bin/java
+)
+
+VM_BIN=""
+for JVM in "${VMS[@]}"; do
+	[ -x "$JVM" ] && VM_BIN="$JVM" && break
+done
 
 if [ ! -x "${ECLIPSE_BIN}" ] ; then
 	echo "Failed to find executable '${ECLIPSE_BIN}'" > /dev/stderr
@@ -29,21 +38,10 @@ if [ $(id -u) -eq 0 ] ; then
 	exit 1
 fi
 
-#case "$(java-config -f)" in
-#	*gcj*)
-#		export JAVA_PKG_CLASSMAP="${ECLIPSE_HOME}/eclipse.gcjdb"
-#		;;
-#esac
-
-#eval $(gjl --package "swt-${SLOT}" --get-args)
-
 [ -n "${ECLIPSE_XMS}" ] && VM_ARGS="${VM_ARGS} -Xms${ECLIPSE_XMS}"
 [ -n "${ECLIPSE_XMX}" ] && VM_ARGS="${VM_ARGS} -Xmx${ECLIPSE_XMX}"
 [ -n "${ECLIPSE_PERMSIZE}" ] && VM_ARGS="${VM_ARGS} -XX:PermSize=${ECLIPSE_PERMSIZE}"
 [ -n "${ECLIPSE_MAX_PERMSIZE}" ] && VM_ARGS="${VM_ARGS} -XX:MaxPermSize=${ECLIPSE_MAX_PERMSIZE}"
 
-# Fix for JRE 1.5.
-#export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/lib
-
-exec "${ECLIPSE_BIN}" -vm ${VM_BIN} "$@" "${ECLIPSE_USER_ARGS}" -vmargs ${VM_ARGS}
+exec "${ECLIPSE_BIN}" -vm "${VM_BIN}" "$@" ${ECLIPSE_USER_ARGS} -vmargs ${VM_ARGS}
 #--launcher.GTK_version ${GTK_VERSION}
