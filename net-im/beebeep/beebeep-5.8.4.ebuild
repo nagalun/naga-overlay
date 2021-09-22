@@ -23,6 +23,8 @@ IUSE="hd-emojis telemetry X-only"
 DEPEND="
 	>=dev-qt/qtcore-5
 	>=dev-qt/qtmultimedia-5
+	>=dev-qt/qtprintsupport-5
+	>=dev-qt/qtx11extras-5
 	x11-libs/libxcb
 "
 
